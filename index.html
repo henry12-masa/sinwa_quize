@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>神話クイズ</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Arial", sans-serif;
+      background: linear-gradient(135deg, #1d1b3f, #4b2c7a);
+      color: white;
+      text-align: center;
+    }
+
+    header {
+      padding: 25px;
+      background: rgba(0, 0, 0, 0.35);
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 30px auto;
+      padding: 25px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    .question {
+      font-size: 24px;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .choices {
+      display: grid;
+      gap: 15px;
+    }
+
+    button {
+      padding: 16px;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: #fff;
+      color: #222;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #ffd166;
+      transform: scale(1.03);
+    }
+
+    .correct {
+      background: #38b000 !important;
+      color: white;
+    }
+
+    .wrong {
+      background: #d00000 !important;
+      color: white;
+    }
+
+    .info {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    .next-btn {
+      margin-top: 25px;
+      background: #ffd166;
+      font-weight: bold;
+    }
+
+    .score {
+      font-size: 22px;
+      margin-top: 20px;
+    }
+
+    .ad {
+      margin: 20px auto;
+      max-width: 728px;
+      height: 90px;
+      background: rgba(255,255,255,0.2);
+      border: 2px dashed rgba(255,255,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #eee;
+      border-radius: 10px;
+    }
+
+    select {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>神話クイズ</header>
+
+<div class="ad">広告エリア</div>
+
+<div class="container">
+  <select id="categorySelect" onchange="startQuiz()">
+    <option value="all">すべての神話</option>
+    <option value="greek">ギリシャ神話</option>
+    <option value="japanese">日本神話</option>
+    <option value="norse">北欧神話</option>
+    <option value="egypt">エジプト神話</option>
+  </select>
+
+  <div class="question" id="question">問題を読み込み中...</div>
+  <div class="choices" id="choices"></div>
+  <div class="info" id="info"></div>
+  <button class="next-btn" onclick="nextQuestion()">次の問題へ</button>
+  <div class="score" id="score"></div>
+</div>
+
+<script>
+const quizData = [
+  {
+    category: "greek",
+    question: "ギリシャ神話で、最高神とされる神は誰？",
+    choices: ["ゼウス", "アポロン", "ヘルメス", "ハデス"],
+    answer: "ゼウス"
+  },
+  {
+    category: "greek",
+    question: "海を支配するギリシャ神話の神は誰？",
+    choices: ["ポセイドン", "アレス", "ヘファイストス", "ディオニュソス"],
+    answer: "ポセイドン"
+  },
+  {
+    category: "greek",
+    question: "冥界を支配する神は誰？",
+    choices: ["ハデス", "ゼウス", "アポロン", "ヘルメス"],
+    answer: "ハデス"
+  },
+  {
+    category: "greek",
+    question: "美と愛の女神は誰？",
+    choices: ["アフロディーテ", "アテナ", "ヘラ", "アルテミス"],
+    answer: "アフロディーテ"
+  },
+  {
+    category: "greek",
+    question: "知恵と戦略の女神は誰？",
+    choices: ["アテナ", "ヘラ", "デメテル", "ペルセポネ"],
+    answer: "アテナ"
+  },
+  {
+    category: "greek",
+    question: "太陽や音楽、予言の神として知られるのは誰？",
+    choices: ["アポロン", "アレス", "ヘルメス", "クロノス"],
+    answer: "アポロン"
+  },
+  {
+    category: "greek",
+    question: "ギリシャ神話で英雄ヘラクレスが行った有名な試練は？",
+    choices: ["12の功業", "7つの旅", "3つの誓い", "10の戦争"],
+    answer: "12の功業"
+  },
+  {
+    category: "greek",
+    question: "翼のあるサンダルを履いた神々の使者は誰？",
+    choices: ["ヘルメス", "アポロン", "アレス", "ハデス"],
+    answer: "ヘルメス"
+  },
+  {
+    category: "greek",
+    question: "戦争の神は誰？",
+    choices: ["アレス", "ポセイドン", "ヘルメス", "ヘリオス"],
+    answer: "アレス"
+  },
+  {
+    category: "greek",
+    question: "ミノタウロスが閉じ込められていた場所は？",
+    choices: ["迷宮", "神殿", "塔", "地下都市"],
+    answer: "迷宮"
+  },
+
+  {
+    category: "japanese",
+    question: "日本神話で、太陽の女神とされるのは誰？",
+    choices: ["天照大神", "月読命", "須佐之男命", "伊邪那美命"],
+    answer: "天照大神"
+  },
+  {
+    category: "japanese",
+    question: "天照大神が隠れたことで世界が暗くなった場所は？",
+    choices: ["天岩戸", "黄泉の国", "高天原", "出雲"],
+    answer: "天岩戸"
+  },
+  {
+    category: "japanese",
+    question: "日本神話で、海や嵐の神とされるのは誰？",
+    choices: ["須佐之男命", "天照大神", "大国主命", "猿田彦命"],
+    answer: "須佐之男命"
+  },
+  {
+    category: "japanese",
+    question: "八岐大蛇を退治した神は誰？",
+    choices: ["須佐之男命", "日本武尊", "天照大神", "伊邪那岐命"],
+    answer: "須佐之男命"
+  },
+  {
+    category: "japanese",
+    question: "日本列島を生んだとされる夫婦神は？",
+    choices: ["伊邪那岐命と伊邪那美命", "天照大神と月読命", "大国主命と少彦名命", "須佐之男命と櫛名田比売"],
+    answer: "伊邪那岐命と伊邪那美命"
+  },
+  {
+    category: "japanese",
+    question: "黄泉の国から戻った神は誰？",
+    choices: ["伊邪那岐命", "須佐之男命", "大国主命", "瓊瓊杵尊"],
+    answer: "伊邪那岐命"
+  },
+  {
+    category: "japanese",
+    question: "因幡の白兎を助けた神は誰？",
+    choices: ["大国主命", "須佐之男命", "天照大神", "月読命"],
+    answer: "大国主命"
+  },
+  {
+    category: "japanese",
+    question: "天孫降臨で地上に降りた神は誰？",
+    choices: ["瓊瓊杵尊", "大国主命", "伊邪那岐命", "猿田彦命"],
+    answer: "瓊瓊杵尊"
+  },
+  {
+    category: "japanese",
+    question: "天照大神の弟とされる月の神は誰？",
+    choices: ["月読命", "須佐之男命", "大国主命", "火之迦具土神"],
+    answer: "月読命"
+  },
+  {
+    category: "japanese",
+    question: "三種の神器に含まれないものはどれ？",
+    choices: ["勾玉", "鏡", "剣", "弓"],
+    answer: "弓"
+  },
+
+  {
+    category: "norse",
+    question: "北欧神話で、主神とされる神は誰？",
+    choices: ["オーディン", "トール", "ロキ", "バルドル"],
+    answer: "オーディン"
+  },
+  {
+    category: "norse",
+    question: "雷の神として知られる北欧神話の神は誰？",
+    choices: ["トール", "ロキ", "フレイ", "ヘイムダル"],
+    answer: "トール"
+  },
+  {
+    category: "norse",
+    question: "トールが持つハンマーの名前は？",
+    choices: ["ミョルニル", "グングニル", "レーヴァテイン", "ダーインスレイヴ"],
+    answer: "ミョルニル"
+  },
+  {
+    category: "norse",
+    question: "悪戯好きで変身能力を持つ神は誰？",
+    choices: ["ロキ", "トール", "オーディン", "チュール"],
+    answer: "ロキ"
+  },
+  {
+    category: "norse",
+    question: "北欧神話における世界樹の名前は？",
+    choices: ["ユグドラシル", "アスガルド", "ミズガルズ", "ヴァルハラ"],
+    answer: "ユグドラシル"
+  },
+  {
+    category: "norse",
+    question: "戦士たちが死後に行く館とされる場所は？",
+    choices: ["ヴァルハラ", "ヘルヘイム", "ヨトゥンヘイム", "ニヴルヘイム"],
+    answer: "ヴァルハラ"
+  },
+  {
+    category: "norse",
+    question: "オーディンが持つ槍の名前は？",
+    choices: ["グングニル", "ミョルニル", "バルムンク", "エクスカリバー"],
+    answer: "グングニル"
+  },
+  {
+    category: "norse",
+    question: "神々の終末戦争を何という？",
+    choices: ["ラグナロク", "ギガントマキア", "トロイア戦争", "天地開闢"],
+    answer: "ラグナロク"
+  },
+  {
+    category: "norse",
+    question: "虹の橋ビフレストを守る神は誰？",
+    choices: ["ヘイムダル", "ロキ", "フレイヤ", "チュール"],
+    answer: "ヘイムダル"
+  },
+  {
+    category: "norse",
+    question: "愛と美、戦いの女神として知られるのは誰？",
+    choices: ["フレイヤ", "ヘル", "シフ", "フリッグ"],
+    answer: "フレイヤ"
+  },
+
+  {
+    category: "egypt",
+    question: "エジプト神話で太陽神として有名なのは誰？",
+    choices: ["ラー", "オシリス", "セト", "アヌビス"],
+    answer: "ラー"
+  },
+  {
+    category: "egypt",
+    question: "死者の神、冥界の王として知られるのは誰？",
+    choices: ["オシリス", "ラー", "ホルス", "トト"],
+    answer: "オシリス"
+  },
+  {
+    category: "egypt",
+    question: "ミイラ作りや死者の導きに関わるジャッカル頭の神は？",
+    choices: ["アヌビス", "セト", "ホルス", "プタハ"],
+    answer: "アヌビス"
+  },
+  {
+    category: "egypt",
+    question: "天空の神で、ハヤブサの頭を持つとされる神は？",
+    choices: ["ホルス", "ラー", "アヌビス", "トト"],
+    answer: "ホルス"
+  },
+  {
+    category: "egypt",
+    question: "オシリスの妻で、魔術の女神として知られるのは誰？",
+    choices: ["イシス", "ハトホル", "バステト", "ネフティス"],
+    answer: "イシス"
+  },
+  {
+    category: "egypt",
+    question: "混沌や砂漠、嵐の神として知られるのは誰？",
+    choices: ["セト", "ラー", "トト", "ホルス"],
+    answer: "セト"
+  },
+  {
+    category: "egypt",
+    question: "知恵や文字、書記の神として知られるのは誰？",
+    choices: ["トト", "アヌビス", "ラー", "セト"],
+    answer: "トト"
+  },
+  {
+    category: "egypt",
+    question: "猫の姿で表されることが多い女神は？",
+    choices: ["バステト", "イシス", "マアト", "ネイト"],
+    answer: "バステト"
+  },
+  {
+    category: "egypt",
+    question: "真理・秩序・正義を象徴する女神は？",
+    choices: ["マアト", "イシス", "ハトホル", "セクメト"],
+    answer: "マアト"
+  },
+  {
+    category: "egypt",
+    question: "エジプト神話で太陽の船に乗る神として知られるのは？",
+    choices: ["ラー", "オシリス", "アヌビス", "ホルス"],
+    answer: "ラー"
+  }
+];
+
+let currentQuiz = [];
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+function startQuiz() {
+  const category = document.getElementById("categorySelect").value;
+
+  if (category === "all") {
+    currentQuiz = shuffle([...quizData]);
+  } else {
+    currentQuiz = shuffle(quizData.filter(q => q.category === category));
+  }
+
+  currentIndex = 0;
+  score = 0;
+  showQuestion();
+}
+
+function showQuestion() {
+  answered = false;
+
+  const q = currentQuiz[currentIndex];
+  document.getElementById("question").textContent =
+    `第${currentIndex + 1}問：${q.question}`;
+
+  const choicesDiv = document.getElementById("choices");
+  choicesDiv.innerHTML = "";
+
+  shuffle([...q.choices]).forEach(choice => {
+    const btn = document.createElement("button");
+    btn.textContent = choice;
+    btn.onclick = () => checkAnswer(btn, choice, q.answer);
+    choicesDiv.appendChild(btn);
+  });
+
+  document.getElementById("info").textContent = "";
+  document.getElementById("score").textContent =
+    `スコア：${score} / ${currentQuiz.length}`;
+}
+
+function checkAnswer(button, selected, answer) {
+  if (answered) return;
+  answered = true;
+
+  const buttons = document.querySelectorAll(".choices button");
+
+  buttons.forEach(btn => {
+    if (btn.textContent === answer) {
+      btn.classList.add("correct");
+    }
+  });
+
+  if (selected === answer) {
+    score++;
+    document.getElementById("info").textContent = "正解！";
+  } else {
+    button.classList.add("wrong");
+    document.getElementById("info").textContent = `不正解。正解は「${answer}」です。`;
+  }
+
+  document.getElementById("score").textContent =
+    `スコア：${score} / ${currentQuiz.length}`;
+
+  setTimeout(() => {
+    nextQuestion();
+  }, 1200);
+}
+
+function nextQuestion() {
+  currentIndex++;
+
+  if (currentIndex >= currentQuiz.length) {
+    endQuiz();
+  } else {
+    showQuestion();
+  }
+}
+
+function endQuiz() {
+  document.getElementById("question").textContent = "クイズ終了！";
+  document.getElementById("choices").innerHTML = "";
+  document.getElementById("info").textContent =
+    `あなたの正解数は ${score} / ${currentQuiz.length} 問です。`;
+  document.getElementById("score").textContent = "";
+
+  const restartBtn = document.createElement("button");
+  restartBtn.textContent = "もう一度プレイ";
+  restartBtn.onclick = startQuiz;
+  document.getElementById("choices").appendChild(restartBtn);
+}
+
+startQuiz();
+</script>
+
+</body>
+</html>
